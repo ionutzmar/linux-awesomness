@@ -62,16 +62,17 @@ int main(int argc, char ** argv)
 		/* MADNESS! Crash or kernel panic is imminent! */
 
 		int pattern = 0;
-		int i, j, k, a;
+		int i, j, k, a = 1, b = 128;
 		if (argc > 1) sscanf(argv[1], "%i", &pattern);
 		switch (pattern) {
 			case 1:
-				printf("Grid pattern selected. Press enter to continue\n"); getchar();
+				printf("Grid pattern selected. Enter grid size (0 for default): "); scanf("%d", &b);
+				if (b <= 0) b = 128;
 				while (1) {
-					a = a % 15 + 1;
+					a = a % b + 2;
 					for (i = 0; i < vinfo.xres_virtual; i++) {
 						for (j = 0; j < vinfo.yres_virtual; j++) {
-							k = ((i % 15 == j % 15) || ((i + j + 16 - a) % 15 == 0)) * 150;
+							k = (((i - j) % b == 0) || ((i + j + b + 1 - a) % b == 0)) * 160;
 							set_pixel(fbp, i, j, k, k, 0, 0, vinfo, finfo);
 						}
 					}
