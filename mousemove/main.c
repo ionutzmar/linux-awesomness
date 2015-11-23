@@ -11,7 +11,7 @@
 
 #define PI 3.14159265359
 
-char * dev_mouse = "/dev/input/event4";
+char * dev_input = "/dev/input/";
 
 // Prints the given error message and the value of errno. The program is halted
 void fuck(char * s) {
@@ -25,10 +25,24 @@ void fuck(char * s) {
 }
 
 int main(int argc, char const *argv[]) {
+    // Check for parameter
+    if (argc < 2) {
+        printf("Usage: circle event_file\n\n");
+        printf("  event_file                  event file name inside /dev/input/.\n\n");
+        printf("To find out the event file for your mouse\n");
+        printf("  cat /proc/bus/input/devices | grep mouse\n");
+        printf("Then look for 'eventx' where x is a number.\n");
+        return 0;
+    }
+
     // Open the device
-    int fd = open(dev_mouse, O_WRONLY);
+    char * path = (char *) malloc((strlen(dev_input) + 32) * sizeof(char));
+    strcpy(path, dev_input);
+    strncat(path, argv[1], 31);
+    int fd = open(path, O_WRONLY);
     if (fd < 0)
         fuck("Failed to open device");
+    free(path);
 
     // Create a mouse input event
     struct input_event ev;
