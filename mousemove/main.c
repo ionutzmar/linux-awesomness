@@ -46,7 +46,6 @@ int main(int argc, char const *argv[]) {
 
     // Create a mouse input event
     struct input_event ev;
-    ev.type = EV_REL;   // Relative movement
 
     // Inject input events to create a circle
     int ret;
@@ -56,10 +55,31 @@ int main(int argc, char const *argv[]) {
         dx = A  * sin(t * 2 * PI / T);
         dy = A  * cos(t * 2 * PI / T);
 
+        ev.type = EV_REL;   // Relative movement
         ev.code = REL_X; // On the X axis
         ev.value = (int) dx;
         ret = write(fd, &ev, sizeof(ev));
 
+        if (ret < 0)
+            fuck("Failed to write");
+        if (ret == 0)
+            fuck("Nothing written");
+        else if (ret < sizeof(ev))
+            fuck("Partial write");
+
+        ev.type = EV_SYN;
+        ev.code = SYN_REPORT;
+        ev.value = 0;
+        ret = write(fd, &ev, sizeof(ev));
+
+        if (ret < 0)
+            fuck("Failed to write");
+        if (ret == 0)
+            fuck("Nothing written");
+        else if (ret < sizeof(ev))
+            fuck("Partial write");
+
+        ev.type = EV_REL;   // Relative movement
         ev.code = REL_Y; // On the Y axis
         ev.value = (int) dy;
         ret += write(fd, &ev, sizeof(ev));
@@ -68,7 +88,19 @@ int main(int argc, char const *argv[]) {
             fuck("Failed to write");
         if (ret == 0)
             fuck("Nothing written");
-        else if (ret < 2 * sizeof(ev))
+        else if (ret <  sizeof(ev))
+            fuck("Partial write");
+
+        ev.type = EV_SYN;
+        ev.code = SYN_REPORT;
+        ev.value = 0;
+        ret = write(fd, &ev, sizeof(ev));
+
+        if (ret < 0)
+            fuck("Failed to write");
+        if (ret == 0)
+            fuck("Nothing written");
+        else if (ret < sizeof(ev))
             fuck("Partial write");
 
         t += 0.01;
